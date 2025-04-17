@@ -1,0 +1,45 @@
+counting = False
+t = 0
+
+def on_received_number(receivedNumber):
+    global counting
+    if receivedNumber == 0:
+        basic.show_leds("""
+            . . . . .
+            . . . . #
+            . # . # .
+            . . # . .
+            . . . . .
+            """)
+    elif receivedNumber == 1:
+        counting = True
+radio.on_received_number(on_received_number)
+
+def on_button_pressed_b():
+    global t
+    t += 1
+input.on_button_pressed(Button.B, on_button_pressed_b)
+
+def on_forever():
+    global t, counting
+    radio.set_group(13)
+    if counting and t > 0:
+        while counting and t > 0:
+            basic.pause(1000)
+            t += -1
+            basic.show_number(t)
+    elif counting and t == 0:
+        counting = False
+        basic.show_string("ON")
+        basic.pause(200)
+    elif False:
+        basic.show_leds("""
+            . . . . .
+            . . . . .
+            . . . . .
+            . . . . .
+            . . . . .
+            """)
+    else:
+        pass
+basic.forever(on_forever)
