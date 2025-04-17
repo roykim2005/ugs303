@@ -1,0 +1,22 @@
+current_state = 0
+
+def on_forever():
+    global current_state
+    radio.set_group(13)
+    radio.set_transmit_power(7)
+    if input.rotation(Rotation.ROLL) >= 105 and current_state != 1:
+        current_state = 1
+        basic.show_leds("""
+            . . # . .
+            . . # . .
+            . . # . .
+            . . # . .
+            . . # . .
+            """)
+        radio.send_number(1)
+    elif input.rotation(Rotation.ROLL) < 105 and current_state != 0:
+        current_state = 0
+        basic.clear_screen()
+        radio.send_number(0)
+    basic.pause(100)
+basic.forever(on_forever)
