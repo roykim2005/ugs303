@@ -1,45 +1,65 @@
-counting = False
-t = 0
-
 def on_received_number(receivedNumber):
-    global counting
+    global counting, u, done_shown, has_run
     if receivedNumber == 0:
-        basic.show_leds("""
-            . . . . .
-            . . . . #
-            . # . # .
-            . . # . .
-            . . . . .
-            """)
+        
+        counting = False
+        u = 0
+        done_shown = False
+        has_run = False
+        basic.clear_screen()
     elif receivedNumber == 1:
-        counting = True
+        
+        if not (counting):
+            counting = True
+            u = 0
+            done_shown = False
+            has_run = False
+            basic.show_string("ON")
+            basic.clear_screen()
+            update_display(u)
 radio.on_received_number(on_received_number)
 
 def on_button_pressed_b():
-    global t
-    t += 1
+    global done_shown, u, has_run
+    if counting:
+        done_shown = False
+        if u < 25:
+            u += 1
+        has_run = True
+        
+        update_display(u)
 input.on_button_pressed(Button.B, on_button_pressed_b)
 
+def update_display(t: number):
+    basic.clear_screen()
+    i = 0
+    while i <= min(t, 25) - 1:
+        x = i % 5
+        # left to right
+        y = Math.idiv(i, 5)
+        # top to bottom
+        led.plot(x, y)
+        i += 1
+has_run = False
+done_shown = False
+u = 0
+counting = False
+radio.set_group(13)
+
 def on_forever():
-    global t, counting
-    radio.set_group(13)
-    if counting and t > 0:
-        while counting and t > 0:
+    global u, has_run, done_shown
+    if counting:
+        if u > 0:
+            update_display(u)
             basic.pause(1000)
-            t += -1
-            basic.show_number(t)
-    elif counting and t == 0:
-        counting = False
-        basic.show_string("ON")
-        basic.pause(200)
-    elif False:
-        basic.show_leds("""
-            . . . . .
-            . . . . .
-            . . . . .
-            . . . . .
-            . . . . .
-            """)
+            u += 0 - 1
+            has_run = True
+        elif has_run and not (done_shown):
+            basic.show_string("Done")
+            basic.pause(250)
+            basic.clear_screen()
+            done_shown = True
     else:
-        pass
+        basic.clear_screen()
 basic.forever(on_forever)
+
